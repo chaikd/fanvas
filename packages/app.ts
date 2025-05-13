@@ -1,5 +1,5 @@
 import { App } from 'vue'
-import canvasLabel from './canvasLabel'
+import canvasLabel from './fanvasLabel'
 
 const comment = [
   canvasLabel

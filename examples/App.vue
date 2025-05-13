@@ -11,32 +11,27 @@
     <div class="content-wrapper">
       <div class="annotation-area">
         <div class="card">
-          <!-- <div class="card-header">
-            <h2>标注区域</h2>
-          </div> -->
           <div class="card">
-            <div class="card-header">
-              <h2>画框类型(e键结束多边形画框)</h2>
-            </div>
             <div class="card-body">
               <div class="tool-grid">
                 <button
                   v-for="tool in drawingTools"
                   :key="tool.name"
                   @click="selectTool(tool.name)"
-                  :class="['tool-button', { active: currentTool === tool.name }]"
+                  :class="['tool-button', { active: state.currentTool === tool.name }]"
                 >
                   <span class="icon" v-html="tool.icon"></span>
                   <!-- {{ tool.label }} -->
                 </button>
               </div>
-              <div class="tool-status">
+              <!-- <div class="tool-status">
                 <button class="tool-button" @click="swatchRectRotate">切换矩形旋转</button>
-              </div>
+              </div> -->
             </div>
           </div>
           <div class="canvas-wrapper">
             <canvasLabel
+              ref="fanvas"
               :existingFrameInfo="state.existingFrameInfo"
               :imageUrl="state.imageUrl"
               :onlySelected="false"
@@ -71,69 +66,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed, reactive, onMounted } from 'vue'
-import { useLabelToolService } from '../packages/services/labelToolService';
+import { ref, reactive, onMounted } from 'vue'
 
-const toolService = useLabelToolService()
+const fanvas = ref()
 const imgArr = ref([
   'http://gips3.baidu.com/it/u=3886271102,3123389489&fm=3028&app=3028&f=JPEG&fmt=auto?w=1280&h=960',
   'http://gips3.baidu.com/it/u=100751361,1567855012&fm=3028&app=3028&f=JPEG&fmt=auto?w=960&h=1280',
   'http://gips1.baidu.com/it/u=1647344915,1746921568&fm=3028&app=3028&f=JPEG&fmt=auto?w=720&h=1280',
 ])
-let imgIndex = computed(() => {
-  let index = imgArr.value.findIndex(url => url === state.imageUrl)
-  return index === imgArr.value.length - 1 ? 0 : ++index
-})
-const state = reactive({
+
+const state = reactive<{
+  actionButtons: Array<{
+    name: string,
+    label: string,
+    icon: string,
+    action: () => void,
+  }>,
+  existingFrameInfo?,
+  imageUrl: string,
+  currentTool: string,
+}>({
   existingFrameInfo: [],
   imageUrl: imgArr.value[0],
-  actionButtons: []
+  actionButtons: [],
+  currentTool: ''
 })
 
 const drawingTools = [
-  { name: 'choice', label: '选择', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>' },
+  { name: 'select', label: '选择', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>' },
   { name: 'rect', label: '矩形', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>' },
-  { name: 'polygon', label: '多边形（e键结束）', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8.5 7.5L16 21H8L3.5 10.5 12 3z"/></svg>' },
-  { name: 'point', label: '点', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>' },
+  { name: 'text', label: '文字', icon: '<svg t="1747110084160" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2731" width="200" height="200"><path d="M32 0 972.651987 0 972.651987 316.651576 931.05337 316.651576C931.05337 316.651576 851.664627 123.301587 757.99696 106.426488 664.326945 89.551388 599.217138 101.163665 599.217138 101.163665L598.048275 908.460659C598.048275 908.460659 624.046382 963.027206 666.957181 966.897965L761.948781 966.897965 761.948781 1022.63337 242.777214 1022.63337 244.09057 965.511776 327.28898 964.19607C327.28898 964.19607 389.765027 944.689555 389.765027 899.258944 389.765027 853.896474 391.083083 107.668185 391.083083 107.668185 391.083083 107.668185 288.327649 93.496156 234.939369 106.496972 181.625097 119.427304 87.881073 197.297106 73.598618 311.462763L32 312.778468 32 0 32 0 32 0Z" fill="#272636" p-id="2732"></path></svg>' },
+  // { name: 'polygon', label: '多边形（e键结束）', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8.5 7.5L16 21H8L3.5 10.5 12 3z"/></svg>' },
+  // { name: 'point', label: '点', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>' },
   { name: 'brush', label: '画笔', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>' },
-  { name: 'polyline', label: '折线', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L21 21"/><path d="M3 21L21 3"/></svg>' },
+  // { name: 'polyline', label: '折线', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L21 21"/><path d="M3 21L21 3"/></svg>' },
 ]
 
-const selectTool = (toolName) => {
-  changeType(toolName)
-}
-
-const nextImage = () => {
-  nextPhoto()
-}
+// let imgIndex = computed(() => {
+//   let index = imgArr.value.findIndex(url => url === state.imageUrl)
+//   return index === imgArr.value.length - 1 ? 0 : ++index
+// })
 
 onMounted(() => {
   state.actionButtons = [
     { name: 'delete', label: '删除', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>', action: deleteFrame },
-    { name: 'addLabel', label: '添加标签', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', action: addLabel },
-    { name: 'getLabelInfo', label: '获取画框信息', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>', action: getData },
-    { name: 'nextImage', label: '下一张', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>', action: nextImage },
+    // { name: 'addLabel', label: '添加标签', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', action: addLabel },
+    // { name: 'getLabelInfo', label: '获取画框信息', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>', action: getData },
+    // { name: 'nextImage', label: '下一张', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>', action: nextImage },
   ]
 })
-function changeType(type: string) {
-  toolService.setType(type)
-}
-function getData() {
-  console.log(toolService.frameInfo)
-}
-function addLabel() {
-  toolService.addLabel('123')
-}
-function nextPhoto() {
-  state.imageUrl = imgArr.value[imgIndex.value]
+// const nextImage = () => {
+//   nextPhoto()
+// }
+// function getData() {
+//   // console.log(toolService.frameInfo)
+// }
+// function addLabel() {
+//   // toolService.addLabel('123')
+// }
+// function nextPhoto() {
+//   state.imageUrl = imgArr.value[imgIndex.value]
+// }
+const selectTool = (toolName) => {
+  // changeType(toolName)
+  fanvas.value.switchTool(toolName)
 }
 function deleteFrame() {
-  toolService.deleteFrame()
-}
-function swatchRectRotate() {
-  toolService.setConfig({
-    isRectRotation: !toolService.toolStatus.isRectRotation
-  })
+  fanvas.value.deleteSelected()
 }
 </script>
 

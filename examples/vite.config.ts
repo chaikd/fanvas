@@ -2,24 +2,24 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import {resolve} from 'path'
 import vitePluginEslint from 'vite-plugin-eslint'
-import vitePluginDts from 'vite-plugin-dts'
+// import vitePluginDts from 'vite-plugin-dts'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vitePluginEslint({
-      include: ['examples/**/*.ts', 'examples/**/*.vue', 'examples/**/*.js']
+      include: ['./**/*.ts', './**/*.vue', './**/*.js']
     }),
-    vitePluginDts({
-      entryRoot: "./examples",
-      outDir: ["./examples-dist"],
-      tsconfigPath: "./tsconfig.buildts.json",
-    })
+    // vitePluginDts({
+    //   entryRoot: "./",
+    //   outDir: ["../examples-dist"],
+    //   tsconfigPath: "../tsconfig.buildts.json",
+    // }),
   ],
   resolve: {
     alias: {
-      "@": resolve(__dirname, "examples"),
+      "@": resolve(__dirname, "packages"),
     },
   },
   build: {
@@ -30,7 +30,7 @@ export default defineConfig({
       },
       output: {
         format: 'esm',
-        dir: './examples-dist',
+        dir: '../examples-dist',
         esModule: true,
         // globals: {
         //   vue: 'Vue',
