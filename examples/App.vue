@@ -1,11 +1,11 @@
 <template>
   <a class="gitlog" href="https://github.com/chaikd/vue3-label" target="_blank">
-      <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true"
-          class="octicon octicon-mark-github v-align-middle">
-          <path fill-rule="evenodd"
-              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
-          </path>
-      </svg>
+    <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true"
+      class="octicon octicon-mark-github v-align-middle">
+      <path fill-rule="evenodd"
+        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+      </path>
+    </svg>
   </a>
   <div class="annotation-page">
     <div class="content-wrapper">
@@ -14,12 +14,8 @@
           <div class="card">
             <div class="card-body">
               <div class="tool-grid">
-                <button
-                  v-for="tool in drawingTools"
-                  :key="tool.name"
-                  @click="selectTool(tool.name)"
-                  :class="['tool-button', { active: state.currentTool === tool.name }]"
-                >
+                <button v-for="tool in drawingTools" :key="tool.name" @click="selectTool(tool.name)"
+                  :class="['tool-button', { active: state.currentTool === tool.name }]">
                   <span class="icon" v-html="tool.icon"></span>
                   <!-- {{ tool.label }} -->
                 </button>
@@ -30,12 +26,11 @@
             </div>
           </div>
           <div class="canvas-wrapper">
-            <canvasLabel
-              ref="fanvas"
-              :existingFrameInfo="state.existingFrameInfo"
-              :imageUrl="state.imageUrl"
-              :onlySelected="false"
-            />
+            <!-- <canvasLabel ref="fanvas" :existingFrameInfo="state.existingFrameInfo" :imageUrl="state.imageUrl"
+              :onlySelected="false" /> -->
+            <div class="canvas-box" ref="canvasBox">
+              <canvas class="canvas" ref="theCanvas" id="theCanvas"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -47,12 +42,11 @@
             </div>
             <div class="card-body">
               <div class="action-buttons">
-                <button
-                  v-for="action in state.actionButtons"
-                  :key="action.name"
-                  @click="action.action"
-                  class="action-button"
-                >
+                <button v-for="action in state.actionButtons" :key="action.name" @click="action.action"
+                  class="action-button">
+                  <template v-if="action.name === 'addLabel'">
+                    <input type="text" v-model="state.labelName" placeholder="输入标签名" class="label-input" @click.stop>
+                  </template>
                   <span class="icon" v-html="action.icon"></span>
                   <span>{{ action.label }}</span>
                 </button>
@@ -66,14 +60,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, type Ref } from 'vue'
+import Fanvas from '@/fanvas/core/fanvas';
 
-const fanvas = ref()
-const imgArr = ref([
-  'http://gips3.baidu.com/it/u=3886271102,3123389489&fm=3028&app=3028&f=JPEG&fmt=auto?w=1280&h=960',
-  'http://gips3.baidu.com/it/u=100751361,1567855012&fm=3028&app=3028&f=JPEG&fmt=auto?w=960&h=1280',
-  'http://gips1.baidu.com/it/u=1647344915,1746921568&fm=3028&app=3028&f=JPEG&fmt=auto?w=720&h=1280',
-])
+let fanvasManager: Ref<Fanvas | null> = ref(null)
+const theCanvas = ref('theCanvas')
+const canvasBox = ref<HTMLElement>()
+// const imgArr = ref([
+//   'http://gips3.baidu.com/it/u=3886271102,3123389489&fm=3028&app=3028&f=JPEG&fmt=auto?w=1280&h=960',
+//   'http://gips3.baidu.com/it/u=100751361,1567855012&fm=3028&app=3028&f=JPEG&fmt=auto?w=960&h=1280',
+//   'http://gips1.baidu.com/it/u=1647344915,1746921568&fm=3028&app=3028&f=JPEG&fmt=auto?w=720&h=1280',
+// ])
 
 const state = reactive<{
   actionButtons: Array<{
@@ -82,14 +79,15 @@ const state = reactive<{
     icon: string,
     action: () => void,
   }>,
-  existingFrameInfo?,
-  imageUrl: string,
+  // existingFrameInfo?,
+  // imageUrl: string,
   currentTool: string,
 }>({
-  existingFrameInfo: [],
-  imageUrl: imgArr.value[0],
+  // existingFrameInfo: [],
+  // imageUrl: imgArr.value[0],
   actionButtons: [],
-  currentTool: ''
+  currentTool: '',
+  labelName: ''
 })
 
 const drawingTools = [
@@ -110,10 +108,20 @@ const drawingTools = [
 onMounted(() => {
   state.actionButtons = [
     { name: 'delete', label: '删除', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>', action: deleteFrame },
+    { name: 'preStep', label: '上一步', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', action: preStep },
+    { name: 'addLabel', label: '添加标签', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', action: addLabel },
     // { name: 'addLabel', label: '添加标签', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', action: addLabel },
     // { name: 'getLabelInfo', label: '获取画框信息', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>', action: getData },
     // { name: 'nextImage', label: '下一张', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>', action: nextImage },
   ]
+  const { clientWidth, clientHeight } = (canvasBox.value as HTMLElement)
+  fanvasManager.value = new Fanvas('theCanvas', {
+    canvasConfig: {
+      width: clientWidth,
+      height: clientHeight
+    }
+  })
+  switchTool('select')
 })
 // const nextImage = () => {
 //   nextPhoto()
@@ -121,18 +129,27 @@ onMounted(() => {
 // function getData() {
 //   // console.log(toolService.frameInfo)
 // }
-// function addLabel() {
-//   // toolService.addLabel('123')
-// }
+function addLabel() {
+  // fanvas.addLabel()
+  fanvasManager.value.setLabel(state.labelName)
+}
+function preStep() {
+  fanvasManager.value?.preStep()
+}
 // function nextPhoto() {
 //   state.imageUrl = imgArr.value[imgIndex.value]
 // }
 const selectTool = (toolName) => {
   // changeType(toolName)
-  fanvas.value.switchTool(toolName)
+  fanvasManager.value?.useTool(toolName)
+  state.labelName = ''
 }
 function deleteFrame() {
-  fanvas.value.deleteSelected()
+  fanvasManager.value?.deleteSelected()
+}
+
+const switchTool = (toolName) => {
+  fanvasManager.value?.useTool(toolName)
 }
 </script>
 
@@ -201,13 +218,24 @@ h1 {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.canvas-box {
+  height: 100%;
+}
+
 .tool-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
 }
 
-.tool-button, .action-button {
+.label-input {
+  border: none;
+  outline: none;
+  margin-right: 5px;
+}
+
+.tool-button,
+.action-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,6 +283,7 @@ h1 {
   width: 100%;
   height: 100%;
 }
+
 .tool-status {
   margin-top: 10px;
 }
@@ -279,6 +308,3 @@ h1 {
   }
 }
 </style>
-
-
-

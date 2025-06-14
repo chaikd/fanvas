@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:examples": "vite ./examples",
     "build": "vue-tsc -b && vite build",
     "build:examples": "vue-tsc -b && vite build -c ./examples/vite.config.ts",
     "preview": "vite preview"

@@ -25,7 +25,7 @@ const theCanvas = ref('theCanvas')
 const canvasBox = ref<HTMLElement>()
 
 onMounted(() => {
-  const {clientWidth, clientHeight} = (canvasBox.value as HTMLElement)
+  const { clientWidth, clientHeight } = (canvasBox.value as HTMLElement)
   fanvasManager.value = new fanvas('theCanvas', {
     canvasConfig: {
       width: clientWidth,
@@ -43,11 +43,15 @@ const addImg = (img) => {
 const deleteSelected = () => {
   fanvasManager.value?.deleteSelected()
 }
+const preStep = () => {
+  fanvasManager.value?.preStep()
+}
 defineExpose({
   fanvasManager,
   switchTool,
   addImg,
   deleteSelected,
+  preStep
 })
 </script>
 <style scoped>

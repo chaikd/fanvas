@@ -1,4 +1,4 @@
-import type { FabricObject, FabricObjectProps, TPointerEvent, TPointerEventInfo } from "fabric";
+import type { FabricObject, FabricObjectProps, RectProps, TPointerEvent, TPointerEventInfo } from "fabric";
 import ToolLoader from "../../modules/toolLoader";
 
 export type ToolTypes = 'rect' | 'brush' | 'circle' | 'select' | 'text'
@@ -31,3 +31,5 @@ export interface ToolConstructor {
   name: string
   install: (toolLoader: ToolLoader) => Tool
 }
+
+export type RectToolConfig = Partial<RectProps & {label: string}>

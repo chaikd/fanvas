@@ -26,6 +26,31 @@ export class CanvasLoader {
     this.canvas.selection = isSelection
   }
 
+  getObjects() {
+    return this.canvas.getObjects()
+  }
+
+  async getActiveObjects() {
+    const actives: Array<FabricObject> = await this.canvas.getActiveObjects()
+    return actives
+  }
+
+  deleteObject(obj: FabricObject) {
+    this.canvas.remove(obj)
+  }
+
+  refresh() {
+    this.canvas.requestRenderAll();
+  }
+
+  autoActiveObject() {
+    const currentObjects: Array<FabricObject> = this.getObjects()
+    if(currentObjects.length > 0) {
+      const obj = currentObjects[currentObjects.length - 1]
+      this.canvas.setActiveObject(obj)
+    }
+  }
+
   addImage(img: Element | string) {
     let theImg
     if(img instanceof Node) {
@@ -38,17 +63,25 @@ export class CanvasLoader {
     this.canvas.add(new FabricImage(theImg))
   }
 
-  deleteSelected() {
-    const selected: Array<FabricObject> = this.canvas.getActiveObjects()
-    if(selected.length > 1) {
-      selected.forEach(obj => {
-        this.canvas.remove(obj)
-      })
-    } else if (selected.length > 0) {
-      this.canvas.remove(selected[0])
+  async deleteSelected() {
+    const selected = await this.getActiveObjects()
+    selected.forEach(obj => {
+      this.deleteObject(obj)
+    })
+    this.autoActiveObject()
+    // this.canvas.discardActiveObject();
+    this.refresh();
+  }
+
+  async preStep() {
+    const objs = this.getObjects()
+    const deleteObj = objs[objs.length - 1]
+    this.deleteObject(deleteObj)
+    const selected = await this.getActiveObjects()
+    if (selected.length === 0) {
+      this.autoActiveObject()
     }
-    this.canvas.discardActiveObject();
-    this.canvas.requestRenderAll();
+    this.refresh();
   }
 
   setEventListener(tool: Tool | undefined) {
@@ -76,6 +109,23 @@ export class CanvasLoader {
       // this.canvas.off('path:created', this.currentToolListener._onPathCreated)
       this.currentToolListener = null
     }
+  }
+
+  // async setLabel(label: string) {
+  async setLabel(label: string) {
+    const actives: Array<FabricObject> = await this.getActiveObjects();
+    if (!actives || actives.length === 0) return;
+
+    actives.forEach(obj => {
+      if (typeof obj.setLabel === 'function') {
+        obj.setLabel(label);
+        obj.set('dirty', true)
+      } else if ('label' in obj) {
+        obj.label = label;
+        obj.set('dirty', true)
+      }
+    });
+    this.refresh();
   }
 
   _onMounseDown(tool) {

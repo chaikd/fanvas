@@ -5,8 +5,9 @@ import selectTool from '../tools/selectTool';
 import circleTool from '../tools/circleTool'
 import textTool from "../tools/textTool";
 import brushTool from "../tools/brushTool";
+import { ToolLoaderInterface } from "../types/modules/toolLoader";
 
-export default class ToolLoader {
+export default class ToolLoader implements ToolLoaderInterface {
   tools = new Map<string, ToolConstructor>()
   canvas!: Canvas
   config!: ToolConfigProps

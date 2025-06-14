@@ -1,6 +1,7 @@
-import { Canvas, FabricObject, Rect, RectProps } from "fabric";
-import { EventPointer, Tool, ToolConfigProps } from "../types/tools";
+import { Canvas, FabricObject, Rect } from "fabric";
+import { EventPointer, RectToolConfig, Tool, ToolConfigProps } from "../types/tools";
 import ToolLoader from "../modules/toolLoader";
+import drawLabel from "./utils/drawLabel";
 class RectTool implements Tool {
   static name = 'rect'
   name = 'rect'
@@ -11,7 +12,7 @@ class RectTool implements Tool {
   mounseFrom = {x: 0, y: 0}
   // install!: (toolLoader: ToolLoader) => void
 
-  constructor(canvas: Canvas, config: Partial<RectProps>) {
+  constructor(canvas: Canvas, config: RectToolConfig) {
     this.canvas = canvas
     this.config = config
   }
@@ -29,7 +30,7 @@ class RectTool implements Tool {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const {x, y} = this.canvas.getViewportPoint((e as any))
     this.mounseFrom = {x, y}
-    this.currentRect = new Rect({
+    this.currentRect = new LabelRect({
       ...this.config,
       left: x,
       top: y,
@@ -86,3 +87,29 @@ class RectTool implements Tool {
 }
 
 export default RectTool
+
+
+class LabelRect extends Rect {
+  label: string
+  constructor(options) {
+    super(options)
+    this.label = options.label || ''
+  }
+
+  // 在矩形上方绘制 label
+  _render(ctx: CanvasRenderingContext2D) {
+    super._render(ctx)
+    if (this.label) {
+      drawLabel({
+        ctx,
+        label: this.label,
+        x: this.width / 2 - ((this.label.length / 2) * 14),
+        y: -this.height / 2
+      })
+    }
+  }
+
+  setLabel(label: string) {
+    this.label = label
+  }
+}

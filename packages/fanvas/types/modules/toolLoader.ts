@@ -1,5 +1,5 @@
-import { Tool } from "../tools";
+import { ToolConstructor } from "../tools";
 
 export interface ToolLoaderInterface {
-  tools: Map<string, Tool>
+  tools: Map<string, ToolConstructor>
 }
