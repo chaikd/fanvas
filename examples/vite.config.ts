@@ -23,6 +23,8 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: '../examples-dist', // 关键：指定输出目录
+    emptyOutDir: true,
     rollupOptions: {
       // external: ['vue'],
       input: {
@@ -30,8 +32,11 @@ export default defineConfig({
       },
       output: {
         format: 'esm',
-        dir: '../examples-dist',
+        // dir: '../examples-dist',
         esModule: true,
+        manualChunks: {
+          vue: ['vue']
+        },
         // globals: {
         //   vue: 'Vue',
         // },

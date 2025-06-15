@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import {resolve} from 'path'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import vitePluginEslint from 'vite-plugin-eslint'
 import vitePluginDts from 'vite-plugin-dts'
 
@@ -9,7 +11,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vitePluginEslint({
-      include: ['packages/**/*.ts', 'packages/**/*.vue', 'packages/**/*.js']
+      include: ['packages/**/*.ts', 'packages/**/*.vue', 'packages/**/*.js'],
     }),
     vitePluginDts({
       entryRoot: "./packages",
@@ -25,9 +27,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'packages/index.ts'),
-      name: 'VueLabel',
+      name: 'fanvas',
       // 将添加适当的扩展名后缀
-      fileName: 'vue3-label',
+      fileName: 'fanvas',
     },
     rollupOptions: {
       external: ['vue'],

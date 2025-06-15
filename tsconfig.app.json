@@ -4,10 +4,13 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "allowJs": true,
-
     /* Bundler mode */
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
@@ -15,14 +18,25 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "preserve",
-
     /* Linting */
     "noImplicitAny": false,
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": "./", // 通常设置为项目根目录
+    "paths": {
+      "@/*": [
+        "packages/*"
+      ]
+    }
   },
-  "include": ["packages/**/*", "examples/**/*"]
+  "include": [
+    "packages/**/*",
+    "examples/**/*"
+  ],
+  "exclude": [
+    "packages/services/index.type.ts"
+  ]
 }

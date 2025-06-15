@@ -2,7 +2,7 @@
 
 底层用到了fabricjs库
 
-github：https://github.com/chaikd/vue3-label
+github：https://github.com/chaikd/fanvas
 
 # 使用
 在项目中安装依赖包
