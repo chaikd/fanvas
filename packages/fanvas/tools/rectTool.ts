@@ -76,6 +76,9 @@ class RectTool implements Tool {
     this.isDrowing = false
     this.canvas.discardActiveObject();
     this.canvas.setActiveObject(this.currentRect as FabricObject)
+    if(this.currentRect && this.currentRect?.width <= 1 && this.currentRect?.height <= 1) {
+      this.canvas.remove(this.currentRect)
+    }
     this.canvas.requestRenderAll();
     this.currentRect = null
   }

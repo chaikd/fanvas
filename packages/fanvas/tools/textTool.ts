@@ -58,6 +58,10 @@ class TextTool implements Tool {
   onTextChanged() {
     this.isInput = false
   }
+  // onTextEditingExited(){
+  //   console.log(this.currentTextBox)
+  //   this.canvas.setActiveObject(this.currentTextBox as FabricObject)
+  // }
 
   static install(toolLoader: ToolLoader) {
     const textTool = new TextTool(toolLoader.canvas, toolLoader.config)

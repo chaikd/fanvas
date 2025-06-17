@@ -1,13 +1,9 @@
-import { Canvas, FabricImage, FabricObject } from "fabric";
-import { canvasLoaderOptions } from "../types/modules/canvasLoader";
-import { Tool } from "../types/tools";
+import { FabricObject } from "fabric";
+import { canvasLoaderOptions } from "../../types/modules/canvasLoader";
+import { Tool } from "../../types/tools";
+import BaseAction from "./base";
 
-export class CanvasLoader {
-  canvas!: Canvas
-  defaultOptions: Partial<canvasLoaderOptions> = {
-    selection: false,
-    renderOnAddRemove: true
-  }
+export class CanvasLoader extends BaseAction {
   currentToolListener: null | {
     _onMounseDown?,
     _onMounseMove?,
@@ -16,51 +12,7 @@ export class CanvasLoader {
     _onPathCreated?,
   } = null
   constructor(el?: string| HTMLCanvasElement, option?: canvasLoaderOptions) {
-    this.canvas = new Canvas(el, {
-      ...this.defaultOptions,
-      ...option
-    });
-  }
-
-  setSelection(isSelection) {
-    this.canvas.selection = isSelection
-  }
-
-  getObjects() {
-    return this.canvas.getObjects()
-  }
-
-  async getActiveObjects() {
-    const actives: Array<FabricObject> = await this.canvas.getActiveObjects()
-    return actives
-  }
-
-  deleteObject(obj: FabricObject) {
-    this.canvas.remove(obj)
-  }
-
-  refresh() {
-    this.canvas.requestRenderAll();
-  }
-
-  autoActiveObject() {
-    const currentObjects: Array<FabricObject> = this.getObjects()
-    if(currentObjects.length > 0) {
-      const obj = currentObjects[currentObjects.length - 1]
-      this.canvas.setActiveObject(obj)
-    }
-  }
-
-  addImage(img: Element | string) {
-    let theImg
-    if(img instanceof Node) {
-      theImg = img
-    } else {
-      const dom = document.createElement('img')
-      dom.src = img
-      theImg = dom
-    }
-    this.canvas.add(new FabricImage(theImg))
+    super(el, option)
   }
 
   async deleteSelected() {
@@ -68,9 +20,8 @@ export class CanvasLoader {
     selected.forEach(obj => {
       this.deleteObject(obj)
     })
-    this.autoActiveObject()
-    // this.canvas.discardActiveObject();
     this.refresh();
+    this.autoActiveObject()
   }
 
   async preStep() {
@@ -91,7 +42,7 @@ export class CanvasLoader {
       _onMounseMove: this._onMounseMove(tool),
       _onMounseUp: this._onMounseUp(tool),
       _onTextChanged: this._onTextChanged(tool),
-      _onPathCreated: this._onPathCreated(tool)
+      _onPathCreated: this._onPathCreated(tool),
     }
     this.canvas.on('mouse:down', this.currentToolListener._onMounseDown);
     this.canvas.on('mouse:move', this.currentToolListener._onMounseMove);
@@ -163,4 +114,11 @@ export class CanvasLoader {
       }
     }
   }
+  // _onTextEditingExited(tool) {
+  //   return (e) => {
+  //     if(tool.onTextEditingExited) {
+  //       tool.onTextEditingExited(e)
+  //     }
+  //   }
+  // }
 }

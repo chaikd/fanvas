@@ -39,12 +39,12 @@ class BrushTool implements Tool {
     this.canvas.freeDrawingBrush = freeDrawingBrush
     // this.setBrushColor(this.defaultConfig.brushColor)
     // this.setBrushWidth(this.defaultConfig.brushWidth)
-    freeDrawingBrush.shadow = new Shadow({
-      color: 'grey',
-      blur: 10,
-      offsetX: 5,
-      offsetY: 5
-    });
+    // freeDrawingBrush.shadow = new Shadow({
+    //   color: 'grey',
+    //   blur: 10,
+    //   offsetX: 5,
+    //   offsetY: 5
+    // });
   }
   deactive(): void {
       this.canvas.defaultCursor = 'default'
