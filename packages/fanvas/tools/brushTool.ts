@@ -1,10 +1,9 @@
 import { Canvas, FabricObject, PencilBrush, Shadow } from "fabric";
 import ToolLoader from "../modules/toolLoader";
-import { Tool, ToolConfigProps } from "../types/tools";
+import { Tool, ToolConfigProps, ToolConstructor } from "../types/tools";
 
 class BrushTool implements Tool {
   static name = 'brush'
-  name = 'brush'
   canvas: Canvas
   config: ToolConfigProps
   defaultConfig: {
@@ -37,6 +36,7 @@ class BrushTool implements Tool {
     this.canvas.isDrawingMode = true
     const freeDrawingBrush = new PencilBrush(this.canvas);
     this.canvas.freeDrawingBrush = freeDrawingBrush
+    this.canvas.on('path:created', (e) => {this.onPathCreated(e)})
     // this.setBrushColor(this.defaultConfig.brushColor)
     // this.setBrushWidth(this.defaultConfig.brushWidth)
     // freeDrawingBrush.shadow = new Shadow({
@@ -50,6 +50,7 @@ class BrushTool implements Tool {
       this.canvas.defaultCursor = 'default'
       this.canvas.isDrawingMode = false
       this.canvas.freeDrawingBrush = undefined
+      this.canvas.off()
   }
   setBrushColor(color) {
     if(this.canvas.freeDrawingBrush) {
@@ -71,4 +72,6 @@ class BrushTool implements Tool {
     return textTool
   }
 }
-export default BrushTool
+
+const BrushToolInterface: ToolConstructor = BrushTool
+export default BrushToolInterface

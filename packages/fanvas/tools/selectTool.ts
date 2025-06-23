@@ -1,5 +1,5 @@
 import { Canvas } from "fabric";
-import { Tool, ToolConfigProps } from "../types/tools";
+import { Tool, ToolConfigProps, ToolConstructor } from "../types/tools";
 import ToolLoader from "../modules/toolLoader";
 
 export class SelectTool implements Tool {
@@ -32,15 +32,11 @@ export class SelectTool implements Tool {
     this.canvas.requestRenderAll()
   }
 
-  onPointDown() {}
-  onPointMove() {}
-  onPointUp() {}
-  
-
   static install(toolLoader: ToolLoader) {
     const selectTool = new SelectTool(toolLoader.canvas, toolLoader.config)
     return selectTool
   }
 }
 
-export default SelectTool
+const SelectToolInterface: ToolConstructor = SelectTool
+export default SelectToolInterface

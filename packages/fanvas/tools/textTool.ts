@@ -1,5 +1,5 @@
 import { Canvas, Textbox, TextboxProps } from "fabric";
-import { EventPointer, Tool, ToolConfigProps } from "../types/tools";
+import { EventPointer, Tool, ToolConfigProps, ToolConstructor } from "../types/tools";
 import ToolLoader from "../modules/toolLoader";
 class TextTool implements Tool {
   static name = 'text'
@@ -27,14 +27,17 @@ class TextTool implements Tool {
   active() {
     this.canvas.defaultCursor = 'text'
     this.canvas.selection = true
+    this.canvas.on('text:changed', () => {this.onTextChanged()})
+    this.canvas.on('mouse:down', (e) => {this.onMouseDown(e)})
   }
   deactive() {
     this.canvas.selection = false
     this.canvas.defaultCursor = 'default'
     this.currentTextBox = null
+    this.canvas.off()
   }
 
-  onPointDown(e: EventPointer) {
+  onMouseDown(e: EventPointer) {
     if (this.isInput && this.currentTextBox) {
       this.canvas.remove(this.currentTextBox)
     }
@@ -58,10 +61,6 @@ class TextTool implements Tool {
   onTextChanged() {
     this.isInput = false
   }
-  // onTextEditingExited(){
-  //   console.log(this.currentTextBox)
-  //   this.canvas.setActiveObject(this.currentTextBox as FabricObject)
-  // }
 
   static install(toolLoader: ToolLoader) {
     const textTool = new TextTool(toolLoader.canvas, toolLoader.config)
@@ -69,4 +68,5 @@ class TextTool implements Tool {
   }
 }
 
-export default TextTool
+const TextToolInterface: ToolConstructor = TextTool
+export default TextToolInterface

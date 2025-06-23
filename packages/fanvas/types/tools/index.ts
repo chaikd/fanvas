@@ -15,16 +15,8 @@ export interface ToolConfigProps extends Partial<FabricObjectProps> {
 }
 
 export interface Tool extends Partial<FabricObject> {
-  name: string
   active(): void
   deactive(): void
-  // setup(canvas: Canvas, config: ToolConfigProps): void;
-  onPointDown?: (e: TPointerEventInfo<TPointerEvent> & TPointerEventInfo<TPointerEvent> & { alreadySelected: boolean; }) => void
-  onPointMove?: (e: TPointerEventInfo<TPointerEvent> & TPointerEventInfo<TPointerEvent> & { alreadySelected: boolean; }) => void
-  onPointUp?: () => void
-  _onTextChanged?: () => void
-  onKeyDown?: (e: TPointerEventInfo<TPointerEvent> & TPointerEventInfo<TPointerEvent> & { alreadySelected: boolean; }) => void
-  // install: (toolLoader: ToolLoader) => Tool
 }
 
 export interface ToolConstructor {

@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Canvas, Circle, CircleProps } from "fabric";
 import ToolLoader from "../modules/toolLoader";
-import { EventPointer, Tool, ToolConfigProps } from "../types/tools";
+import { EventPointer, Tool, ToolConfigProps, ToolConstructor } from "../types/tools";
 
-export default class CircleTool implements Tool {
+class CircleTool implements Tool {
   static name = 'circle'
-  name = 'circle'
   canvas!: Canvas
   config!: ToolConfigProps
   isDrowing: boolean = false
@@ -22,13 +21,21 @@ export default class CircleTool implements Tool {
 
   active() {
     this.canvas.defaultCursor = 'crosshair'
+    this.canvas.on('mouse:down', (e) => {this.onMouseDown(e)})
+    this.canvas.on('mouse:move', (e) => {
+      // Ensure the event has alreadySelected property for EventPointer type
+      const eventWithAlreadySelected = { ...(e as object), alreadySelected: false } as EventPointer;
+      return this.onMouseMove(eventWithAlreadySelected);
+    })
+    this.canvas.on('mouse:up', () => {this.onMouseUp()})
   }
   deactive() {
     this.isDrowing = false
     this.canvas.defaultCursor = 'default'
+    this.canvas.off()
   }
 
-  onPointDown(e: EventPointer) {
+  onMouseDown(e: EventPointer) {
     this.isDrowing = true
     const {x, y} = this.canvas.getViewportPoint((e as any))
     this.mounseFrom = {
@@ -42,7 +49,7 @@ export default class CircleTool implements Tool {
     })
     this.canvas.add(this.currentCircle)
   }
-  onPointMove(e: EventPointer) {
+  onMouseMove(e: EventPointer) {
     if (!this.isDrowing || !this.currentCircle) return
     let {x, y} = this.canvas.getViewportPoint((e as any))
     let left, top
@@ -74,7 +81,7 @@ export default class CircleTool implements Tool {
     }
     this.canvas.renderAll()
   }
-  onPointUp() {
+  onMouseUp() {
     this.isDrowing = false
     this.currentCircle = null
   }
@@ -84,3 +91,6 @@ export default class CircleTool implements Tool {
     return selectTool
   }
 }
+
+const CircleToolInterface: ToolConstructor = CircleTool
+export default CircleToolInterface

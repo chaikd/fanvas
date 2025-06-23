@@ -1,10 +1,9 @@
 import { Canvas, FabricObject, Rect } from "fabric";
-import { EventPointer, RectToolConfig, Tool, ToolConfigProps } from "../types/tools";
+import { EventPointer, RectToolConfig, Tool, ToolConfigProps, ToolConstructor } from "../types/tools";
 import ToolLoader from "../modules/toolLoader";
 import drawLabel from "./utils/drawLabel";
 class RectTool implements Tool {
   static name = 'rect'
-  name = 'rect'
   canvas!: Canvas
   config!: ToolConfigProps
   isDrowing = false
@@ -19,13 +18,21 @@ class RectTool implements Tool {
 
   active() {
     this.canvas.defaultCursor = 'crosshair'
+    this.canvas.on('mouse:down', (e) => {this.onMouseDown(e)})
+    this.canvas.on('mouse:move', (e) => {
+      // Ensure the event has alreadySelected property for EventPointer type
+      const eventWithAlreadySelected = { ...(e as object), alreadySelected: false } as EventPointer;
+      return this.onMouseMove(eventWithAlreadySelected);
+    })
+    this.canvas.on('mouse:up', () => {this.onMouseUp()})
   }
   deactive() {
     this.isDrowing = false
     this.canvas.defaultCursor = 'default'
+    this.canvas.off()
   }
 
-  onPointDown(e: EventPointer) {
+  onMouseDown(e: EventPointer) {
     this.isDrowing = true
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const {x, y} = this.canvas.getViewportPoint((e as any))
@@ -40,7 +47,7 @@ class RectTool implements Tool {
     this.canvas.add(this.currentRect)
   }
 
-  onPointMove(e: EventPointer) {
+  onMouseMove(e: EventPointer) {
     if (!this.isDrowing || !this.currentRect) return
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let {x, y} = this.canvas.getViewportPoint((e as any))
@@ -72,7 +79,7 @@ class RectTool implements Tool {
     this.canvas.renderAll()
   }
 
-  onPointUp() {
+  onMouseUp() {
     this.isDrowing = false
     this.canvas.discardActiveObject();
     this.canvas.setActiveObject(this.currentRect as FabricObject)
@@ -89,7 +96,8 @@ class RectTool implements Tool {
   }
 }
 
-export default RectTool
+const RectToolInterface: ToolConstructor = RectTool
+export default RectToolInterface
 
 
 class LabelRect extends Rect {
