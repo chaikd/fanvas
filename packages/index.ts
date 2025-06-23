@@ -1,9 +1,3 @@
-import vueLabel, {canvasLabel} from "./app";
-import {useLabelToolService, createLabelToolService} from "./services/labelToolService";
+import Fanvas from './fanvas'
 
-export {
-  vueLabel,
-  canvasLabel,
-  useLabelToolService,
-  createLabelToolService,
-}
+export default Fanvas

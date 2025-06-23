@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, type Ref } from 'vue'
-import Fanvas from '@/fanvas/core/fanvas';
+import Fanvas from '@';
 
 let fanvasManager: Ref<Fanvas | null> = ref(null)
 const theCanvas = ref('theCanvas')
